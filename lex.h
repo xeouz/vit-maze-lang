@@ -46,6 +46,8 @@ enum
     T_COMMA,
     T_DOT,
 
+    T_IF,
+    T_ELSE,
     T_LET,
     T_DO,
     T_FOR,
@@ -53,6 +55,8 @@ enum
 };
 
 const std::unordered_map<std::string, int> KeywordMap = {
+    {"if", T_IF},
+    {"else", T_ELSE},
     {"let", T_LET},
     {"do", T_DO},
     {"for", T_FOR},

@@ -2,7 +2,12 @@
 #include <fstream>
 #include "lex.h"
 
-void run_test_file()
+void run_parse_test()
+{
+
+}
+
+void run_lex_test()
 {
     std::string text;
     std::ifstream file("../in/test.lang");
@@ -24,7 +29,7 @@ void run_test_file()
 
 int main()
 {
-    run_test_file();
+    run_parse_test();
 
     return 0;
 }
