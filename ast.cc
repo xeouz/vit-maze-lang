@@ -21,11 +21,45 @@ void ASTBase::setToken(std::unique_ptr<Token> new_token)
 {
     token = std::move(new_token);
 }
+
+std::string const ASTBase::GetStringFromType(int ast_type)
+{
+    switch(ast_type)
+    {
+    case AST_MAIN: return "MAIN";
+
+    case AST_VAR: return "VAR";
+    case AST_VARDEF: return "VARDEF";
+    case AST_VARASSIGN: return "VARASSIGN";
+
+    case AST_SEQUENCE: return "SEQUENCE";
+    case AST_DOFOR: return "DOFOR";
+    case AST_DOTHROUGH: return "DOTHROUGH";
+
+    case AST_NUMBER: return "NUMBER";
+    case AST_STRING: return "STRING";
+
+    case AST_CALL: return "CALL";
+    case AST_EXTERN: return "EXTERN";
+
+    case AST_BINOP: return "BINOP";
+    case AST_IF: return "IF";
+    case AST_IFELSE: return "IFELSE";
+
+    case AST_ARRAY: return "ARRAY";
+
+    default: return "<INVALID>";
+    }
+}
+std::string const ASTBase::toString() const
+{
+    return GetStringFromType(type);
+}
 ///--- Base AST ---///
 
 ///--- Main AST ---///
-MainAST::MainAST(std::vector<std::unique_ptr<ASTBase>> _body, std::string const& _program_name = "main")
-: body(std::move(_body)), program_name(_program_name), ASTBase(AST_MAIN, _program_name)
+MainAST::MainAST(std::vector<std::unique_ptr<ASTBase>> _body, std::vector<std::unique_ptr<ExternAST>> _external_functions, std::string const& _program_name)
+: body(std::move(_body)), external_functions(std::move(_external_functions)), program_name(_program_name), ASTBase(AST_MAIN, _program_name)
 {
 
 }
@@ -46,6 +80,11 @@ std::vector<std::unique_ptr<ASTBase>> const& MainAST::getBody() const
 void MainAST::setBody(std::vector<std::unique_ptr<ASTBase>> _body)
 {
     body = std::move(_body);
+}
+
+void MainAST::AddExternalFunction(std::unique_ptr<ExternAST> extern_func)
+{
+    external_functions.push_back(std::move(extern_func));
 }
 ///--- Main AST ---///
 
@@ -83,10 +122,10 @@ void VariableDefinitionAST::setName(std::string const& new_name)
 ///--- Variable Definition AST ---///
 
 ///--- Variable Assignment AST ---///
-VariableAssignmentAST::VariableAssignmentAST(std::string const& _name, std::unique_ptr<ASTBase> _value)
-: name(_name), value(std::move(_value)), ASTBase(AST_VARASSIGN, _name)
+VariableAssignmentAST::VariableAssignmentAST(std::string const& _name, std::unique_ptr<ASTBase> _value, std::unique_ptr<Token> _shorthand_operator)
+: name(_name), value(std::move(_value)), ASTBase(AST_VARASSIGN, _name), is_shorthand(false)
 {
-
+    setShorthandOperator(std::move(_shorthand_operator));
 }
 
 std::string const& VariableAssignmentAST::getName() const
@@ -96,6 +135,23 @@ std::string const& VariableAssignmentAST::getName() const
 void VariableAssignmentAST::setName(std::string const& new_name)
 {
     name = new_name;
+}
+
+bool const VariableAssignmentAST::isShorthand() const
+{
+    return is_shorthand;
+}
+void VariableAssignmentAST::setShorthandOperator(std::unique_ptr<Token> _shorthand_operator)
+{
+    if(_shorthand_operator)
+    {
+        is_shorthand = true;
+        shorthand_operator = std::move(_shorthand_operator);
+    }
+    else
+    {
+        is_shorthand = false;
+    }
 }
 ///--- Variable Assignment AST ---///
 
@@ -262,4 +318,46 @@ void ExternAST::setName(std::string const& _name)
 }
 ///--- Extern AST ---///
 
+///--- Binary Operation AST ---///
+BinaryOperationAST::BinaryOperationAST(std::unique_ptr<Token> _op, std::unique_ptr<ASTBase> _lhs, std::unique_ptr<ASTBase> _rhs)
+: op(std::move(_op)), lhs(std::move(_lhs)), rhs(std::move(_rhs)), ASTBase(AST_BINOP, "")
+{
+
+}
+
+Token* const BinaryOperationAST::getOperator() const
+{
+    return op.get();
+}
+ASTBase* const BinaryOperationAST::getLHS() const
+{
+    return lhs.get();
+}
+ASTBase* const BinaryOperationAST::getRHS() const
+{
+    return rhs.get();
+}
+
+std::unique_ptr<ASTBase> BinaryOperationAST::moveLHS()
+{
+    return std::move(lhs);
+}
+std::unique_ptr<ASTBase> BinaryOperationAST::moveRHS()
+{
+    return std::move(rhs);
+}
+
+void BinaryOperationAST::setOperator(std::unique_ptr<Token> new_op)
+{
+    op = std::move(new_op);
+}
+void BinaryOperationAST::setLHS(std::unique_ptr<ASTBase> _lhs)
+{
+    lhs = std::move(_lhs);
+}
+void BinaryOperationAST::setRHS(std::unique_ptr<ASTBase> _rhs)
+{
+    rhs = std::move(_rhs);
+}
+///--- Binary Operation AST ---///
 }

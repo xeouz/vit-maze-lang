@@ -1,3 +1,5 @@
+#pragma once
+
 #include <memory>
 #include <vector>
 
@@ -24,6 +26,7 @@ enum ASTType
     AST_CALL,
     AST_EXTERN,
 
+    AST_BINOP,
     AST_IF,
     AST_IFELSE,
 
@@ -40,24 +43,34 @@ public:
     ASTBase(int ast_type, std::unique_ptr<Token> token);
     ASTBase(int ast_type, std::string const& token_value);
 
+    static std::string const GetStringFromType(int ast_type);
+    std::string const toString() const;
+
     virtual Token* const getToken() const;
     virtual void setToken(std::unique_ptr<Token> new_token);
+
+    virtual ~ASTBase() { }
 };
 ///--- Base AST ---///
 
 ///--- Main AST ---///
+class ExternAST;
+
 class MainAST: public ASTBase
 {
     std::string program_name;
     std::vector<std::unique_ptr<ASTBase>> body;
+    std::vector<std::unique_ptr<ExternAST>> external_functions;
 public:
-    MainAST(std::vector<std::unique_ptr<ASTBase>> body, std::string const& program_name = "main");
+    MainAST(std::vector<std::unique_ptr<ASTBase>> body, std::vector<std::unique_ptr<ExternAST>> external_functions, std::string const& program_name = "main");
 
     std::string const& getProgramName() const;
     void setProgramName(std::string const& name);
 
     std::vector<std::unique_ptr<ASTBase>> const& getBody() const;
     void setBody(std::vector<std::unique_ptr<ASTBase>> body);
+
+    void AddExternalFunction(std::unique_ptr<ExternAST> extern_func);
 };
 ///--- Main AST ---///
 
@@ -91,11 +104,17 @@ class VariableAssignmentAST: public ASTBase
 {
     std::string name;
     std::unique_ptr<ASTBase> value;
+
+    bool is_shorthand;
+    std::unique_ptr<Token> shorthand_operator;
 public:
-    VariableAssignmentAST(std::string const& name, std::unique_ptr<ASTBase> value);
+    VariableAssignmentAST(std::string const& name, std::unique_ptr<ASTBase> value, std::unique_ptr<Token> shorthand_operator=nullptr);
 
     std::string const& getName() const;
     void setName(std::string const& new_name);
+
+    bool const isShorthand() const;
+    void setShorthandOperator(std::unique_ptr<Token> shorthand_operator);
 };
 ///--- Variable Assignment AST ---///
 
@@ -198,4 +217,26 @@ public:
     void setName(std::string const& name);
 };
 ///--- Extern AST ---///
+
+///--- Binary Operation AST ---///
+class BinaryOperationAST: public ASTBase
+{
+    std::unique_ptr<Token> op;
+    std::unique_ptr<ASTBase> lhs, rhs;
+public:
+    BinaryOperationAST(std::unique_ptr<Token> op, std::unique_ptr<ASTBase> lhs, std::unique_ptr<ASTBase> rhs);
+
+    Token* const getOperator() const;
+    ASTBase* const getLHS() const;
+    ASTBase* const getRHS() const;
+
+    std::unique_ptr<ASTBase> moveLHS();
+    std::unique_ptr<ASTBase> moveRHS();
+
+    void setOperator(std::unique_ptr<Token> new_op);
+    void setLHS(std::unique_ptr<ASTBase> lhs);
+    void setRHS(std::unique_ptr<ASTBase> rhs);
+};
+///--- Binary Operation AST ---///
+
 }

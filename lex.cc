@@ -6,22 +6,20 @@ namespace lang
 {
 
 ///---  TOKEN  ---///
-Token::Token()
+Token::Token(): line(0), charpos(0)
 {
-    toknum = line = charpos = 0;
+    toknum = 0;
     value = "";
 }
 Token::Token(int _toknum, std::string _value, std::size_t _line, std::size_t _charpos)
+: toknum(_toknum), value(_value), line(_line), charpos(_charpos)
 {
-    toknum = _toknum;
-    value = _value;
-    line = _line;
-    charpos = _charpos;
+
 }
 
-std::string const Token::toString() const
+std::string const Token::GetStringFromType(int token_type)
 {
-    switch(toknum)
+    switch(token_type)
     {
     case T_EOF: return "EOF";
 
@@ -61,19 +59,30 @@ std::string const Token::toString() const
 
     case T_COMMA: return "COMMA";
     case T_DOT: return "DOT";
+    case T_ATSIGN: return "ATSIGN";
 
+    case T_IF: return "IF";
+    case T_ELSE: return "ELSE";
     case T_LET: return "LET";
     case T_DO: return "DO";
     case T_FOR: return "FOR";
     case T_THROUGH: return "THROUGH";
-        default: return "<INVALID>";
+    case T_EXTERN: return "EXTERN";
+
+    case T_NEXTLINE: return "NEXTLINE";
+    
+    default: return "<INVALID>";
     };
+}
+std::string const Token::toString() const
+{
+    return GetStringFromType(toknum);
 }
 std::string const& Token::getValue() const
 {
     return value;
 };
-int const Token::getTokenNumber() const
+int const Token::getTokenType() const
 {
     return toknum;
 };
@@ -87,7 +96,8 @@ int const Token::getKeywordTokenType(std::string const& str)
 ///---  TOKEN  ---///
 
 ///---  LEXER  ---///
-Lexer::Lexer(std::string const& in_text)
+Lexer::Lexer(std::string const& in_text, char _new_line_char)
+: new_line_char(_new_line_char)
 {
     input_code = in_text;
     length = in_text.length();
@@ -127,8 +137,11 @@ int const Lexer::getIndex()
 void Lexer::advance(int move_amt)
 {
     int findex = index + move_amt + 1;
-    if(findex > length - 1)
-        cur = T_EOF;
+    if(findex >= length)
+    {
+        cur = EOF;
+        return;
+    }
     
     index += move_amt + 1;
     charpos += move_amt + 1;
@@ -220,6 +233,12 @@ std::unique_ptr<Token> Lexer::getToken()
         return gatherNumber();
     }
 
+    if(cur == new_line_char)
+    {
+        return constructCurrentTokenAndAdvance(T_NEXTLINE, std::string("")+new_line_char);
+    }
+
+
     char peek = peekNext(1);
     switch(cur)
     {
@@ -230,6 +249,7 @@ std::unique_ptr<Token> Lexer::getToken()
         case '(': return constructCurrentTokenAndAdvance(T_LPAREN, "(");
         case ')': return constructCurrentTokenAndAdvance(T_RPAREN, ")");
         case ',': return constructCurrentTokenAndAdvance(T_COMMA, ",");
+        case '@': return constructCurrentTokenAndAdvance(T_ATSIGN, "@");
 
         case '=': return constructCurrentTokenAndAdvance(T_EQUALS, "=");
         case '!': {
@@ -282,7 +302,7 @@ std::unique_ptr<Token> Lexer::getToken()
         case EOF: return constructCurrentTokenAndAdvance(T_EOF, "");
 
         default: {
-            std::cout << "LEXER: getToken(): Default case ran." << std::endl;
+            std::cout << "LEXER: getToken(): Default case ran. Current Character ASCII: " << (int)cur << std::endl;
             advance();
             return nullptr;
         }

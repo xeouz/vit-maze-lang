@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <memory>
 #include <unordered_map>
@@ -45,6 +47,7 @@ enum
 
     T_COMMA,
     T_DOT,
+    T_ATSIGN,
 
     T_IF,
     T_ELSE,
@@ -52,6 +55,9 @@ enum
     T_DO,
     T_FOR,
     T_THROUGH,
+    T_EXTERN,
+
+    T_NEXTLINE,
 };
 
 const std::unordered_map<std::string, int> KeywordMap = {
@@ -62,20 +68,21 @@ const std::unordered_map<std::string, int> KeywordMap = {
     {"for", T_FOR},
     {"through", T_THROUGH},
     {"and", T_AND},
-    {"or", T_OR}
+    {"or", T_OR},
+    {"extern", T_EXTERN}
 };
 
 class Token
 {
     int toknum;
     std::string value;
-    std::size_t line, charpos;
 public:
+    const std::size_t line, charpos;
     Token();
     Token(int toknum, std::string value, std::size_t line=0, std::size_t charpos=0);
 
     std::string const& getValue() const;
-    int const getTokenNumber() const;
+    int const getTokenType() const;
 
     inline friend std::ostream& operator<<(std::ostream& os, const Token& token);
     inline friend bool operator==(int num, const Token& token);
@@ -84,6 +91,7 @@ public:
     static int const getKeywordTokenType(std::string const& string);
 
     std::string const toString() const;
+    static std::string const GetStringFromType(int token_type);
 };
 
 inline std::ostream& operator<<(std::ostream& os, const Token& token)
@@ -103,6 +111,7 @@ inline bool operator==(const Token& lhs, const Token& rhs)
 class Lexer
 {
     char cur;
+    char new_line_char;
     std::string input_code;
     std::size_t index, line, charpos, length;
 
@@ -110,7 +119,7 @@ class Lexer
     std::unique_ptr<Token> constructCurrentTokenAndAdvance(int type, std::string value);
     char const peekNext(int peek_amt=0) const;
 public:
-    Lexer(std::string const& in_text);
+    Lexer(std::string const& in_text, char new_line_char='\n');
 
     int const getIndex();
     void advance(int move_amt=0);
