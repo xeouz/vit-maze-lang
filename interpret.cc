@@ -261,7 +261,7 @@ std::unique_ptr<VariableDataBase> Interpreter::interpretExpression(ASTBase* cons
     switch(ast->type)
     {
         default: {
-            return LogErrorU("INTERPRETER: interpretPrimary(): Unable to interpret invalid AST type `"+ast->toString()+"`");
+            return LogErrorU("INTERPRETER: interpretExpression(): Unable to interpret invalid AST type `"+ast->toString()+"`");
         }
 
         case AST_NUMBER: return interpretNumber((NumberAST* const)ast);
@@ -273,6 +273,8 @@ std::unique_ptr<VariableDataBase> Interpreter::interpretExpression(ASTBase* cons
             auto* val = interpretVariable((VariableAST* const)ast);
             return std::unique_ptr<VariableDataBase>(VariableDataBase::copyByType(val));
         }
+
+        case AST_SEQUENCE: return interpretSequence((SequenceAST* const)ast);
         
         case AST_BINOP: return interpretBinaryOperation((BinaryOperationAST* const)ast);
     }
@@ -385,9 +387,25 @@ VariableDataBase* const Interpreter::interpretDoFor(DoForAST* const ast)
     auto const& sequences = ast->getSequences();
     for(int i=0; i<for_times->getValue(); ++i)
     {
-        for(auto&& sequence: sequences)
+        for(auto&& ast: sequences)
         {
-            auto seq = interpretSequence(sequence.get());
+            VariableSequenceData* seq;
+            std::unique_ptr<VariableSequenceData> sequp;
+            if(ast->type == AST_SEQUENCE)
+            {
+                sequp = interpretSequence((SequenceAST*)ast.get());
+                seq = sequp.get();
+            }
+            else if(ast->type == AST_VAR)
+            {
+                auto* var = interpretVariable((VariableAST*)ast.get());
+                if(!var)
+                    return LogError("INTERPRETER: interpretDoFor(): Sequence variable given is invalid");
+                else if(var->getType() != VT_SEQUENCE)
+                    return LogError("INTERPRETER: interpretDoFor(): Sequence variable given is not of type <sequence>");
+                
+                seq = (VariableSequenceData*)var;
+            }
             if(!seq)
             {
                 return LogError("INTERPRETER: interpretDoFor(): Sequence given is invalid");

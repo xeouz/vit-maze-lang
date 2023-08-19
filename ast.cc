@@ -232,7 +232,7 @@ DoForAST::DoForAST(std::unique_ptr<ASTBase> _for_times_ast)
 {
 
 }
-DoForAST::DoForAST(std::unique_ptr<ASTBase> _for_times_ast, std::vector<std::unique_ptr<SequenceAST>> _sequences)
+DoForAST::DoForAST(std::unique_ptr<ASTBase> _for_times_ast, std::vector<std::unique_ptr<ASTBase>> _sequences)
 : for_times_ast(std::move(_for_times_ast)), sequences(std::move(_sequences)), ASTBase(AST_DOFOR, "")
 {
 
@@ -247,11 +247,11 @@ void DoForAST::setForTimes(std::unique_ptr<ASTBase> _for_times)
     for_times_ast = std::move(_for_times);
 }
 
-std::vector<std::unique_ptr<SequenceAST>> const& DoForAST::getSequences() const
+std::vector<std::unique_ptr<ASTBase>> const& DoForAST::getSequences() const
 {
     return sequences;
 }
-void DoForAST::setSequences(std::vector<std::unique_ptr<SequenceAST>> _sequences)
+void DoForAST::setSequences(std::vector<std::unique_ptr<ASTBase>> _sequences)
 {
     sequences = std::move(_sequences);
 }
@@ -263,7 +263,7 @@ DoThroughAST::DoThroughAST(std::unique_ptr<ASTBase> _through_ast)
 {
 
 }
-DoThroughAST::DoThroughAST(std::unique_ptr<ASTBase> _through_ast, std::vector<std::unique_ptr<SequenceAST>> _sequences)
+DoThroughAST::DoThroughAST(std::unique_ptr<ASTBase> _through_ast, std::vector<std::unique_ptr<ASTBase>> _sequences)
 : through_ast(std::move(_through_ast)), sequences(std::move(_sequences)), ASTBase(AST_DOTHROUGH, "")
 {
 
@@ -278,11 +278,11 @@ void DoThroughAST::setThrough(std::unique_ptr<ASTBase> _through_ast)
     through_ast = std::move(_through_ast);
 }
 
-std::vector<std::unique_ptr<SequenceAST>> const& DoThroughAST::getSequences() const
+std::vector<std::unique_ptr<ASTBase>> const& DoThroughAST::getSequences() const
 {
     return sequences;
 }
-void DoThroughAST::setSequences(std::vector<std::unique_ptr<SequenceAST>> _sequences)
+void DoThroughAST::setSequences(std::vector<std::unique_ptr<ASTBase>> _sequences)
 {
     sequences = std::move(_sequences);
 }

@@ -360,14 +360,18 @@ std::unique_ptr<ASTBase> Parser::ParseDo()
 {
     getNextToken(T_DO);
 
-    auto sequence_ast = ParseSequence();
-    if(!sequence_ast)
+    auto val = ParseExpression();
+    if(!val)
+    {
         return nullptr;
-    
-    auto sequence = std::unique_ptr<SequenceAST>((SequenceAST*)sequence_ast.release());
+    }
+    if(val->type != AST_SEQUENCE && val->type != AST_VAR)
+    {
+        return LogError("PARSER: ParseDo(): Given AST is neither a sequence nor a variable");
+    }
 
-    std::vector<std::unique_ptr<SequenceAST>> sequences;
-    sequences.push_back(std::move(sequence));
+    std::vector<std::unique_ptr<ASTBase>> sequences;
+    sequences.push_back(std::move(val));
     
     switch(current_token->getTokenType())
     {

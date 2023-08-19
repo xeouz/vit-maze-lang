@@ -159,34 +159,34 @@ public:
 ///--- Do-For AST ---///
 class DoForAST: public ASTBase
 {
-    std::vector<std::unique_ptr<SequenceAST>> sequences;
+    std::vector<std::unique_ptr<ASTBase>> sequences;
     std::unique_ptr<ASTBase> for_times_ast;
 public:
     DoForAST(std::unique_ptr<ASTBase> for_times_ast);
-    DoForAST(std::unique_ptr<ASTBase> for_times_ast, std::vector<std::unique_ptr<SequenceAST>> sequences);
+    DoForAST(std::unique_ptr<ASTBase> for_times_ast, std::vector<std::unique_ptr<ASTBase>> sequences);
 
     ASTBase* const getForTimes() const;
     void setForTimes(std::unique_ptr<ASTBase> for_times);
 
-    std::vector<std::unique_ptr<SequenceAST>> const& getSequences() const;
-    void setSequences(std::vector<std::unique_ptr<SequenceAST>> sequences);
+    std::vector<std::unique_ptr<ASTBase>> const& getSequences() const;
+    void setSequences(std::vector<std::unique_ptr<ASTBase>> sequences);
 };
 ///--- Do-For AST ---///
 
 ///--- Do-Through AST ---///
 class DoThroughAST: public ASTBase
 {
-    std::vector<std::unique_ptr<SequenceAST>> sequences;
+    std::vector<std::unique_ptr<ASTBase>> sequences;
     std::unique_ptr<ASTBase> through_ast;
 public:
     DoThroughAST(std::unique_ptr<ASTBase> through_ast);
-    DoThroughAST(std::unique_ptr<ASTBase> through_ast, std::vector<std::unique_ptr<SequenceAST>> sequences);
+    DoThroughAST(std::unique_ptr<ASTBase> through_ast, std::vector<std::unique_ptr<ASTBase>> sequences);
 
     ASTBase* const getThrough() const;
     void setThrough(std::unique_ptr<ASTBase> through_ast);
 
-    std::vector<std::unique_ptr<SequenceAST>> const& getSequences() const;
-    void setSequences(std::vector<std::unique_ptr<SequenceAST>> sequences);
+    std::vector<std::unique_ptr<ASTBase>> const& getSequences() const;
+    void setSequences(std::vector<std::unique_ptr<ASTBase>> sequences);
 };
 ///--- Do-Through AST ---///
 
