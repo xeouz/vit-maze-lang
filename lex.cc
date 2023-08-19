@@ -238,8 +238,7 @@ std::unique_ptr<Token> Lexer::getToken()
         return constructCurrentTokenAndAdvance(T_NEXTLINE, std::string("")+new_line_char);
     }
 
-
-    char peek = peekNext(1);
+    char peek = peekNext(0);
     switch(cur)
     {
         case '{': return constructCurrentTokenAndAdvance(T_LBRACE, "{");
@@ -251,7 +250,11 @@ std::unique_ptr<Token> Lexer::getToken()
         case ',': return constructCurrentTokenAndAdvance(T_COMMA, ",");
         case '@': return constructCurrentTokenAndAdvance(T_ATSIGN, "@");
 
-        case '=': return constructCurrentTokenAndAdvance(T_EQUALS, "=");
+        case '=': {
+            if(peek == '=')
+                return constructCurrentTokenAndAdvance(T_DEQUAL, "==");
+            return constructCurrentTokenAndAdvance(T_EQUALS, "=");
+        }
         case '!': {
             if(peek == '=')
                 return constructCurrentTokenAndAdvance(T_NOTEQ, "!=");

@@ -62,7 +62,9 @@ public:
 
     std::unique_ptr<ExternAST> ParseExtern();
 
-    std::unique_ptr<ASTBase> ParseIf();
+    std::unique_ptr<NumberAST> ParseTrueFalse();
+    std::unique_ptr<IfAST> ParseIf();
+    std::unique_ptr<ASTBase> ParseIfElse();
 
     std::unique_ptr<MainAST> ParseMain(std::string const& program_name = "main");
 };

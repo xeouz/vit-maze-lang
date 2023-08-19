@@ -84,7 +84,9 @@ std::unique_ptr<ASTBase> Parser::ParsePrimary()
         case T_LARROW: return ParseSequence();
         case T_DO: return ParseDo();
 
-        // case T_IF: return ParseIf();
+        case T_TRUE: return ParseTrueFalse();
+        case T_FALSE: return ParseTrueFalse();
+        case T_IF: return ParseIfElse();
 
         default: {
             parse_success = false;
@@ -124,8 +126,6 @@ std::unique_ptr<FunctionCallAST> Parser::ParseFunctionCall(std::unique_ptr<Token
         if(current_token->getTokenType() == T_RPAREN)
             break;
 
-
-        
         if(current_token->getTokenType() != T_COMMA)
         {
             LogError("PARSER: ParseFunctionCall(): Expected ')' or ',' in function call argument list\n");
@@ -400,6 +400,108 @@ std::unique_ptr<ExternAST> Parser::ParseExtern()
     getNextToken(T_IDENTIFIER);
 
     return std::make_unique<ExternAST>(name->getValue());
+}
+
+std::unique_ptr<NumberAST> Parser::ParseTrueFalse()
+{
+    auto tok = copyCurrentToken();
+    getNextTokenUnchecked();
+
+    if(tok->getTokenType() == T_TRUE)
+        return std::make_unique<NumberAST>(1);
+    else
+        return std::make_unique<NumberAST>(0);
+}
+std::unique_ptr<IfAST> Parser::ParseIf()
+{
+    getNextToken(T_IF);
+    getNextToken(T_LPAREN);
+    
+    auto expression = ParseExpression();
+
+    getNextToken(T_RPAREN);
+
+    std::vector<std::unique_ptr<ASTBase>> statements;
+    if(current_token->getTokenType() != T_LBRACE)
+    {
+        auto stm = ParsePrimary();
+        if(!stm)
+            return nullptr;
+        statements.push_back(std::move(stm));
+    }
+    else
+    {
+        getNextToken(T_LBRACE);
+        while(current_token->getTokenType() != T_RBRACE)
+        {
+            auto stm = ParsePrimary();
+            if(!stm)
+                return nullptr;
+            statements.push_back(std::move(stm));
+
+            if(current_token->getTokenType() != T_RBRACE)
+                getNextToken(T_NEXTLINE);
+        }
+        getNextToken(T_RBRACE);
+    }
+    
+    return std::make_unique<IfAST>(std::move(expression), std::move(statements));
+}
+std::unique_ptr<ASTBase> Parser::ParseIfElse()
+{
+    bool has_else = false;
+    std::vector<std::unique_ptr<IfAST>> if_statements;
+    while(current_token->getTokenType() == T_IF)
+    {
+        auto ast = ParseIf();
+        if(!ast)
+            return nullptr;
+        
+        if_statements.push_back(std::move(ast));
+
+        if(current_token->getTokenType() == T_ELSE)
+        {
+            getNextToken(T_ELSE);
+            if(current_token->getTokenType() != T_IF)
+            {
+                has_else = true;
+                break;
+            }
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    std::vector<std::unique_ptr<ASTBase>> else_stms;
+    if(has_else)
+    {
+        if(current_token->getTokenType() != T_LBRACE)
+        {
+            auto stm = ParsePrimary();
+            if(!stm)
+                return nullptr;
+            else_stms.push_back(std::move(stm));
+        }
+        else
+        {
+            getNextToken(T_LBRACE);
+            while(current_token->getTokenType() != T_RBRACE)
+            {
+                auto stm = ParsePrimary();
+                if(!stm)
+                    return nullptr;
+                else_stms.push_back(std::move(stm));
+
+                if(current_token->getTokenType() != T_RBRACE)
+                    getNextToken(T_NEXTLINE);
+            }
+            getNextToken(T_RBRACE);
+        }
+    }
+
+    return std::make_unique<IfElseAST>(std::move(if_statements), std::move(else_stms));
 }
 
 std::unique_ptr<MainAST> Parser::ParseMain(std::string const& program_name)

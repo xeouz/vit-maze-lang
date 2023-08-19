@@ -247,4 +247,36 @@ public:
 };
 ///--- Binary Operation AST ---///
 
+///--- If AST ---///
+class IfAST: public ASTBase
+{
+    std::unique_ptr<ASTBase> expression;
+    std::vector<std::unique_ptr<ASTBase>> statements;
+public:
+    IfAST(std::unique_ptr<ASTBase> expression, std::vector<std::unique_ptr<ASTBase>> statements);
+
+    ASTBase* const getExpression() const;
+    void setExpression(std::unique_ptr<ASTBase> new_expression);
+
+    std::vector<std::unique_ptr<ASTBase>> const& getBody() const;
+    void setBody(std::vector<std::unique_ptr<ASTBase>> new_body);
+};
+///--- If AST ---///
+
+///--- If-Else AST ---///
+class IfElseAST: public ASTBase
+{
+    std::vector<std::unique_ptr<IfAST>> if_statements;
+    std::vector<std::unique_ptr<ASTBase>> else_statements;
+public:
+    IfElseAST(std::vector<std::unique_ptr<IfAST>> if_statements, std::vector<std::unique_ptr<ASTBase>> else_statements);
+
+    std::vector<std::unique_ptr<IfAST>> const& getIfStatements() const;
+    void setIfStatements(std::vector<std::unique_ptr<IfAST>> new_if_statements);
+
+    std::vector<std::unique_ptr<ASTBase>> const& getElseBody() const;
+    void setBody(std::vector<std::unique_ptr<ASTBase>> new_body);
+};
+///--- If-Else AST ---///
+
 }

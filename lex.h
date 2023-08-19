@@ -44,6 +44,8 @@ enum
     T_MULEQ,
     T_DIVEQ,
     T_MODEQ,
+    T_TRUE,
+    T_FALSE,
 
     T_COMMA,
     T_DOT,
@@ -69,7 +71,9 @@ const std::unordered_map<std::string, int> KeywordMap = {
     {"through", T_THROUGH},
     {"and", T_AND},
     {"or", T_OR},
-    {"extern", T_EXTERN}
+    {"extern", T_EXTERN},
+    {"true", T_TRUE},
+    {"false", T_FALSE}
 };
 
 class Token

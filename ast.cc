@@ -378,4 +378,56 @@ void BinaryOperationAST::setRHS(std::unique_ptr<ASTBase> _rhs)
     rhs = std::move(_rhs);
 }
 ///--- Binary Operation AST ---///
+
+///--- If AST ---///
+IfAST::IfAST(std::unique_ptr<ASTBase> _expression, std::vector<std::unique_ptr<ASTBase>> _statements)
+: expression(std::move(_expression)), statements(std::move(_statements)), ASTBase(AST_IF, "if")
+{
+
+}
+
+ASTBase* const IfAST::getExpression() const
+{
+    return expression.get();
+}
+void IfAST::setExpression(std::unique_ptr<ASTBase> new_expression)
+{
+    expression = std::move(new_expression);
+}
+
+std::vector<std::unique_ptr<ASTBase>> const& IfAST::getBody() const
+{
+    return statements;
+}
+void IfAST::setBody(std::vector<std::unique_ptr<ASTBase>> new_body)
+{
+    statements = std::move(new_body);
+}
+///--- If AST ---///
+
+///--- If-Else AST ---///
+IfElseAST::IfElseAST(std::vector<std::unique_ptr<IfAST>> _if_statements, std::vector<std::unique_ptr<ASTBase>> _else_statements)
+: if_statements(std::move(_if_statements)), else_statements(std::move(_else_statements)), ASTBase(AST_IFELSE, "")
+{
+
+}
+
+std::vector<std::unique_ptr<IfAST>> const& IfElseAST::getIfStatements() const
+{
+    return if_statements;
+}
+void IfElseAST::setIfStatements(std::vector<std::unique_ptr<IfAST>> new_if_statements)
+{
+    if_statements = std::move(new_if_statements);
+}
+
+std::vector<std::unique_ptr<ASTBase>> const& IfElseAST::getElseBody() const
+{
+    return else_statements;
+}
+void IfElseAST::setBody(std::vector<std::unique_ptr<ASTBase>> new_body)
+{
+    else_statements = std::move(new_body);
+}
+///--- If-Else AST ---///
 }

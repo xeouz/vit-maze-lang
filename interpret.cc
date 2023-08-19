@@ -247,6 +247,8 @@ VariableDataBase* const Interpreter::interpretPrimary(ASTBase* const ast)
         }
         case AST_VARASSIGN: return interpretVariableAssignment((VariableAssignmentAST* const)ast);
         case AST_VARDEF: return interpretVariableDefinition((VariableDefinitionAST* const)ast);
+
+        case AST_IFELSE: return interpretIfElse((IfElseAST* const)ast);
         
         case AST_DOFOR: return interpretDoFor((DoForAST* const)ast);
         case AST_CALL: {
@@ -284,7 +286,7 @@ VariableDataBase* const Interpreter::interpretVariable(VariableAST* const ast)
 {
     if(!isVariableDefined(ast->getName()))
     {
-        return LogError(std::string("INTERPRETER: interpretVariable(): Variable `)"+ast->getName()+"` is not defined"));
+        return LogError(std::string("INTERPRETER: interpretVariable(): Variable `"+ast->getName()+"` is not defined"));
     }
 
     return getVariableValue(ast->getName());
@@ -467,6 +469,12 @@ std::unique_ptr<VariableDataBase> Interpreter::useBinaryOperation(Token* op, Var
             case T_MUL: return std::make_unique<VariableNumberData>(nlhs->getValue() * nrhs->getValue());
             case T_DIV: return std::make_unique<VariableNumberData>(nlhs->getValue() / nrhs->getValue());
             case T_MOD: return std::make_unique<VariableNumberData>((long)nlhs->getValue() % (long)nrhs->getValue());
+            case T_DEQUAL: return std::make_unique<VariableNumberData>(nlhs->getValue() == nrhs->getValue());
+            case T_NOTEQ: return std::make_unique<VariableNumberData>(nlhs->getValue() != nrhs->getValue());
+            case T_LARROW: return std::make_unique<VariableNumberData>(nlhs->getValue() < nrhs->getValue());
+            case T_RARROW: return std::make_unique<VariableNumberData>(nlhs->getValue() > nrhs->getValue());
+            case T_LESSEQ: return std::make_unique<VariableNumberData>(nlhs->getValue() <= nrhs->getValue());
+            case T_MOREEQ: return std::make_unique<VariableNumberData>(nlhs->getValue() >= nrhs->getValue());
         }
     }
     else if(lhs->getType() == rhs->getType() && lhs->getType() == VT_STRING) // If both are strings
@@ -480,6 +488,8 @@ std::unique_ptr<VariableDataBase> Interpreter::useBinaryOperation(Token* op, Var
                 return LogErrorU(std::string("INTERPRETER: useBinaryOperation(): Cannot use token ")+op->toString()+" on a string");
             }
             case T_ADD: return std::make_unique<VariableStringData>(slhs->getValue() + srhs->getValue());
+            case T_DEQUAL: return std::make_unique<VariableNumberData>(slhs->getValue() == srhs->getValue());
+            case T_NOTEQ: return std::make_unique<VariableNumberData>(slhs->getValue() != srhs->getValue());
         }
     }
     else if(lhs->getType() != rhs->getType() && (lhs->getType() == VT_STRING || rhs->getType() == VT_STRING)) // If one of them is a string
@@ -523,6 +533,49 @@ std::unique_ptr<VariableDataBase> Interpreter::interpretBinaryOperation(BinaryOp
     }
 
     return useBinaryOperation(ast->getOperator(), lhs.get(), rhs.get());
+}
+
+bool Interpreter::interpretIf(IfAST* const ast)
+{
+    auto expression = interpretExpression(ast->getExpression());
+    if(expression->getType() != VT_NUMBER)
+    {
+        LogError("INTERPRETER: interpretIf(): Expression in if conditional is not of type number");
+        return false;
+    }
+    
+    auto* num = ((VariableNumberData*)expression.get());
+
+    if(num->getValue() > 0)
+    {
+        for(auto&& stm: ast->getBody())
+        {
+            interpretPrimary(stm.get());
+        }
+        return true;
+    }
+
+    return false;
+}
+VariableDataBase* Interpreter::interpretIfElse(IfElseAST* const ast)
+{
+    bool did_run = false;
+    for(auto&& ifstm: ast->getIfStatements()) // Run ifs
+    {
+        did_run = interpretIf(ifstm.get());
+        if(did_run)
+            break;
+    }
+
+    if(!did_run) // Run else body
+    {
+        for(auto&& stm: ast->getElseBody())
+        {
+            interpretPrimary(stm.get());
+        }
+    }
+
+    return nullptr;
 }
 
 void Interpreter::interpretMain()

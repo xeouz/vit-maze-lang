@@ -179,6 +179,9 @@ public:
 
     std::unique_ptr<VariableDataBase> interpretBinaryOperation(BinaryOperationAST* const ast);
 
+    bool interpretIf(IfAST* const ast);
+    VariableDataBase* interpretIfElse(IfElseAST* const ast);
+
     void interpretMain();
 
     template <typename T>
