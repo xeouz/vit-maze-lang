@@ -283,7 +283,7 @@ std::unique_ptr<VariableAssignmentAST> Parser::ParseVariableAssignment(std::uniq
     getNextToken(T_EQUALS);
     auto value = ParseExpression();
 
-    return std::make_unique<VariableAssignmentAST>(name, std::move(expression));
+    return std::make_unique<VariableAssignmentAST>(name, std::move(value));
 }
 std::unique_ptr<VariableAssignmentAST> Parser::ParseShorthandVariableAssignment(std::unique_ptr<ASTBase> expression)
 {
