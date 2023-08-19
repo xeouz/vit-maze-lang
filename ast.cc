@@ -119,6 +119,11 @@ void VariableDefinitionAST::setName(std::string const& new_name)
 {
     name = new_name;
 }
+
+ASTBase* const VariableDefinitionAST::getValue() const
+{
+    return value.get();
+}
 ///--- Variable Definition AST ---///
 
 ///--- Variable Assignment AST ---///
@@ -141,6 +146,14 @@ bool const VariableAssignmentAST::isShorthand() const
 {
     return is_shorthand;
 }
+std::unique_ptr<Token> VariableAssignmentAST::moveShorthandOperator()
+{
+    return std::move(shorthand_operator);
+}
+Token* const VariableAssignmentAST::getShorthandOperator() const
+{
+    return shorthand_operator.get();
+}
 void VariableAssignmentAST::setShorthandOperator(std::unique_ptr<Token> _shorthand_operator)
 {
     if(_shorthand_operator)
@@ -152,6 +165,11 @@ void VariableAssignmentAST::setShorthandOperator(std::unique_ptr<Token> _shortha
     {
         is_shorthand = false;
     }
+}
+
+ASTBase* const VariableAssignmentAST::getValue() const
+{
+    return value.get();
 }
 ///--- Variable Assignment AST ---///
 

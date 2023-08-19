@@ -44,20 +44,20 @@ public:
 
     std::unique_ptr<ASTBase> ParsePrimary();
     std::unique_ptr<ASTBase> ParseExpression();
-    std::unique_ptr<ASTBase> ParseFunctionCall(std::unique_ptr<Token> name);
+    std::unique_ptr<FunctionCallAST> ParseFunctionCall(std::unique_ptr<Token> name);
 
     std::unique_ptr<ASTBase> ParseIdentifier(bool atsign = false, bool ignore_assignment = false);
-    std::unique_ptr<ASTBase> ParseNumber();
-    std::unique_ptr<ASTBase> ParseString();
+    std::unique_ptr<NumberAST> ParseNumber();
+    std::unique_ptr<StringAST> ParseString();
 
     std::unique_ptr<ASTBase> ParseParenthesis();
     std::unique_ptr<ASTBase> ParseBinaryOperation(int precedence, std::unique_ptr<ASTBase> lhs);
 
-    std::unique_ptr<ASTBase> ParseVariableDefinition();
-    std::unique_ptr<ASTBase> ParseVariableAssignment(std::unique_ptr<ASTBase> expression);
-    std::unique_ptr<ASTBase> ParseShorthandVariableAssignment(std::unique_ptr<ASTBase> expression);
+    std::unique_ptr<VariableDefinitionAST> ParseVariableDefinition();
+    std::unique_ptr<VariableAssignmentAST> ParseVariableAssignment(std::unique_ptr<ASTBase> expression);
+    std::unique_ptr<VariableAssignmentAST> ParseShorthandVariableAssignment(std::unique_ptr<ASTBase> expression);
 
-    std::unique_ptr<ASTBase> ParseSequence();
+    std::unique_ptr<SequenceAST> ParseSequence();
     std::unique_ptr<ASTBase> ParseDo();
 
     std::unique_ptr<ExternAST> ParseExtern();

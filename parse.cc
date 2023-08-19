@@ -14,7 +14,7 @@ std::unique_ptr<ASTBase> Parser::LogError(std::string const& error, bool should_
     if(should_set_success)
         parse_success = false;
 
-    std::cout << error << std::endl;
+    std::cout << error;
     return nullptr;
 }
 bool const Parser::getParseSuccess() const
@@ -89,9 +89,11 @@ std::unique_ptr<ASTBase> Parser::ParsePrimary()
         default: {
             parse_success = false;
             
-            std::string error = "PARSER: ParsePrimary(): Error while trying to parse token ";
+            std::string error = "PARSER: ParsePrimary(): Unable to parse unexpected token ";
             error += current_token->toString();
             error += "\n";
+
+            getNextTokenUnchecked();
             return LogError(error);
         }
     }
@@ -106,7 +108,7 @@ std::unique_ptr<ASTBase> Parser::ParseExpression()
 
     return ParseBinaryOperation(0, std::move(lhs));
 }
-std::unique_ptr<ASTBase> Parser::ParseFunctionCall(std::unique_ptr<Token> name)
+std::unique_ptr<FunctionCallAST> Parser::ParseFunctionCall(std::unique_ptr<Token> name)
 {
     getNextToken(T_LPAREN);
     std::vector<std::unique_ptr<ASTBase>> args;
@@ -125,7 +127,10 @@ std::unique_ptr<ASTBase> Parser::ParseFunctionCall(std::unique_ptr<Token> name)
 
         
         if(current_token->getTokenType() != T_COMMA)
-            return LogError("PARSER: ParseFunctionCall(): Expected ')' or ',' in function call argument list\n");
+        {
+            LogError("PARSER: ParseFunctionCall(): Expected ')' or ',' in function call argument list\n");
+            return nullptr;
+        }
         
         getNextToken(T_COMMA);
     }
@@ -170,7 +175,7 @@ std::unique_ptr<ASTBase> Parser::ParseIdentifier(bool atsign, bool ignore_assign
     return ParseFunctionCall(std::move(id_copy));
 }
 
-std::unique_ptr<ASTBase> Parser::ParseNumber()
+std::unique_ptr<NumberAST> Parser::ParseNumber()
 {
     auto token = copyCurrentToken();
     getNextToken(T_NUMBER);
@@ -182,7 +187,7 @@ std::unique_ptr<ASTBase> Parser::ParseNumber()
 
     return std::move(ast);
 }
-std::unique_ptr<ASTBase> Parser::ParseString()
+std::unique_ptr<StringAST> Parser::ParseString()
 {
     auto token = copyCurrentToken();
     getNextToken(T_STRING);
@@ -254,7 +259,7 @@ std::unique_ptr<ASTBase> Parser::ParseBinaryOperation(int expr_precedence, std::
     }
 }
 
-std::unique_ptr<ASTBase> Parser::ParseVariableDefinition()
+std::unique_ptr<VariableDefinitionAST> Parser::ParseVariableDefinition()
 {
     getNextToken(T_LET);
 
@@ -266,7 +271,7 @@ std::unique_ptr<ASTBase> Parser::ParseVariableDefinition()
 
     return std::make_unique<VariableDefinitionAST>(var_name->getValue(), std::move(expr));
 }
-std::unique_ptr<ASTBase> Parser::ParseVariableAssignment(std::unique_ptr<ASTBase> expression)
+std::unique_ptr<VariableAssignmentAST> Parser::ParseVariableAssignment(std::unique_ptr<ASTBase> expression)
 {
     std::string name = "";
     switch(expression->type)
@@ -280,7 +285,7 @@ std::unique_ptr<ASTBase> Parser::ParseVariableAssignment(std::unique_ptr<ASTBase
 
     return std::make_unique<VariableAssignmentAST>(name, std::move(expression));
 }
-std::unique_ptr<ASTBase> Parser::ParseShorthandVariableAssignment(std::unique_ptr<ASTBase> expression)
+std::unique_ptr<VariableAssignmentAST> Parser::ParseShorthandVariableAssignment(std::unique_ptr<ASTBase> expression)
 {
     std::string name = "";
     switch(expression->type)
@@ -322,7 +327,7 @@ std::unique_ptr<ASTBase> Parser::ParseShorthandVariableAssignment(std::unique_pt
     return std::make_unique<VariableAssignmentAST>(name, std::move(value), std::move(symbol));
 }
 
-std::unique_ptr<ASTBase> Parser::ParseSequence()
+std::unique_ptr<SequenceAST> Parser::ParseSequence()
 {
     getNextToken(T_LARROW);
 
@@ -333,13 +338,18 @@ std::unique_ptr<ASTBase> Parser::ParseSequence()
         getNextToken(T_IDENTIFIER);
 
         if(current_token->getTokenType() != T_LPAREN)
-            return LogError("PARSER: ParseSequence(): Only function calls are allowed in a sequence\n");
+        {
+            LogError("PARSER: ParseSequence(): Only function calls are allowed in a sequence\n");
+            return nullptr;
+        }
         
         auto call = ParseFunctionCall(std::move(name_token));
         if(!call)
             return nullptr;
+        calls.push_back(std::move(call));
 
-        getNextToken(T_COMMA);
+        if(current_token->getTokenType() != T_RARROW)
+            getNextToken(T_COMMA);
     }
     
     getNextToken(T_RARROW);
@@ -415,7 +425,10 @@ std::unique_ptr<MainAST> Parser::ParseMain(std::string const& program_name)
     }
 
     if(!parse_success)
+    {
+        LogError("PARSER: ParseMain(): Could not parse input code successfully\n");
         return nullptr;
+    }
     
     return std::make_unique<MainAST>(std::move(statements), std::move(externs), program_name);
 }

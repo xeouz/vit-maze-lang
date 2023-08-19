@@ -8,7 +8,7 @@ lang: lang.o
 
 run:
 	@echo ---
-	cd out && ./main
+	@cd out && ./main
 
 clean:
 	@rm out/main.o out/lang.o out/interpret.o out/parse.o out/lex.o out/ast.o

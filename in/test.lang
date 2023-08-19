@@ -1,2 +1,2 @@
-let a = 10
-print(abc+10)
+let seq = <print("Hello World"), print("---")>
+do seq for 5

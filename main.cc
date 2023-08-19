@@ -3,6 +3,27 @@
 #include "lex.h"
 #include "parse.h"
 #include "ast.h"
+#include "interpret.h"
+#include "langlib.h"
+
+void run_interpret_test()
+{
+    std::string text;
+    std::ifstream file("../in/test.lang");
+
+    std::string line;
+    while(getline(file, line))
+    {
+        text += line + "\n";
+    }
+
+    auto lex = std::make_unique<lang::Lexer>(text);
+    auto parse = std::make_unique<lang::Parser>(std::move(lex));
+    auto it = std::make_unique<lang::Interpreter>(std::move(parse));
+    lang::lib::registerLibraries(it.get());
+
+    it->interpretMain();
+}
 
 void run_parse_test()
 {
@@ -18,11 +39,8 @@ void run_parse_test()
     auto lex = std::make_unique<lang::Lexer>(text);
     auto parse = std::make_unique<lang::Parser>(std::move(lex));
 
-    auto ast = parse->ParseMain();
-
-    std::cout << ast->getBody().size() << std::endl;
-    std::cout << ast->getBody()[0]->toString() << std::endl;
-    std::cout << ((lang::FunctionCallAST*)ast->getBody()[1].get())->getArguments()[0]->toString() << std::endl;
+    auto a = std::make_unique<lang::VariableNumberData>(1002.3);
+    std::cout << a->getValue() << std::endl;
 }
 
 void run_lex_test()
@@ -47,7 +65,7 @@ void run_lex_test()
 
 int main()
 {
-    run_parse_test();
+    run_interpret_test();
 
     return 0;
 }

@@ -96,6 +96,8 @@ public:
 
     std::string const& getName() const;
     void setName(std::string const& new_name);
+
+    ASTBase* const getValue() const;
 };
 ///--- Variable Definition AST ---///
 
@@ -114,7 +116,11 @@ public:
     void setName(std::string const& new_name);
 
     bool const isShorthand() const;
+    Token* const getShorthandOperator() const;
+    std::unique_ptr<Token> moveShorthandOperator();
     void setShorthandOperator(std::unique_ptr<Token> shorthand_operator);
+
+    ASTBase* const getValue() const;
 };
 ///--- Variable Assignment AST ---///
 
@@ -132,6 +138,8 @@ public:
 
     std::vector<std::unique_ptr<ASTBase>> const& getArguments() const;
     void setArguments(std::vector<std::unique_ptr<ASTBase>> arguments);
+
+    FunctionCallAST* copy() const;
 };
 ///--- Function Call AST ---///
 
