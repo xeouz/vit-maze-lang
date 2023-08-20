@@ -34,6 +34,10 @@ VariableVoidData::VariableVoidData(): VariableDataBase(VT_VOID)
 {
 
 }
+std::unique_ptr<VariableVoidData> VariableVoidData::create()
+{
+    return std::make_unique<VariableVoidData>();
+}
 
 VariableNumberData::VariableNumberData(double _value): value(_value), VariableDataBase(VT_NUMBER)
 {
@@ -50,6 +54,10 @@ void VariableNumberData::setValue(double _value)
 VariableDataBase* VariableNumberData::copy() const
 {
     return new VariableNumberData(value);
+}
+std::unique_ptr<VariableNumberData> VariableNumberData::create(double value)
+{
+    return std::make_unique<VariableNumberData>(value);
 }
 
 VariableStringData::VariableStringData(std::string const& _value): value(_value), VariableDataBase(VT_STRING)
@@ -68,6 +76,10 @@ VariableDataBase* VariableStringData::copy() const
 {
     return new VariableStringData(value);
 }
+std::unique_ptr<VariableStringData> VariableStringData::create(std::string const& value)
+{
+    return std::make_unique<VariableStringData>(value);
+}
 
 VariableSequenceData::VariableSequenceData(std::vector<FunctionCallAST*> _calls): calls(std::move(_calls)), VariableDataBase(VT_SEQUENCE)
 {
@@ -84,6 +96,10 @@ void VariableSequenceData::setValue(std::vector<FunctionCallAST*> _calls)
 VariableDataBase* VariableSequenceData::copy() const
 {
     return new VariableSequenceData(calls);
+}
+std::unique_ptr<VariableSequenceData> VariableSequenceData::create(std::vector<FunctionCallAST*> value)
+{
+    return std::make_unique<VariableSequenceData>(value);
 }
 ///--- Variable Data ---///
 
@@ -169,8 +185,6 @@ void FCIFunctionLibraryBase::setLibraryName(std::string const& lib_name)
 }
 void FCIFunctionLibraryBase::useFunction(std::string const& name, FCIFunctionPtr ptr, FCIImplementableFunctionArguments const& args)
 {
-    std::cout << "useFunction(): Loading function `"+name+"`..." << std::endl;
-
     auto func = std::make_unique<FCIFunction>(args.ret_type, ptr, args.args);
     lib.insert(std::make_pair(name, std::move(func)));
 }
@@ -598,6 +612,11 @@ void Interpreter::interpretMain()
             break;
         }
     }
+}
+
+std::unique_ptr<Interpreter> Interpreter::create(std::unique_ptr<Parser> parser)
+{
+    return std::make_unique<Interpreter>(std::move(parser));
 }
 ///--- Interpreter ---///
 }

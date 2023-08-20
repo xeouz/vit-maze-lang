@@ -134,6 +134,8 @@ public:
     std::unique_ptr<Token> getToken();
     
     std::unique_ptr<Token> constructToken();
+
+    static std::unique_ptr<Lexer> create(std::string const& in_text, char new_line_char='\n');
 };
 
 };

@@ -7,6 +7,7 @@
 #include <map>
 #include <memory>
 #include <functional>
+#include <iostream>
 
 namespace lang
 {
@@ -23,6 +24,11 @@ enum VariableDataType
     VT_ANY,
 };
 
+class VariableNumberData;
+class VariableStringData;
+class VariableVoidData;
+class VariableSequenceData;
+
 class VariableDataBase
 {
     int type;
@@ -36,12 +42,36 @@ public:
     virtual VariableDataBase* copy() const;
 
     static VariableDataBase* copyByType(VariableDataBase* val);
+    
+    template <typename T>
+    T* getAs()
+    {
+        return static_cast<T*>(this);
+    }
+    VariableNumberData* getAsNumber()
+    {
+        return getAs<VariableNumberData>();
+    }
+    VariableStringData* getAsString()
+    {
+        return getAs<VariableStringData>();
+    }
+    VariableSequenceData* getAsSequence()
+    {
+        return getAs<VariableSequenceData>();
+    }
+    VariableVoidData* getAsVoid()
+    {
+        return getAs<VariableVoidData>();
+    }
 };
 
 class VariableVoidData: public VariableDataBase
 {
 public:
     VariableVoidData();
+
+    static std::unique_ptr<VariableVoidData> create();
 };
 
 class VariableNumberData: public VariableDataBase
@@ -54,6 +84,8 @@ public:
     void setValue(double value);
 
     VariableDataBase* copy() const;
+
+    static std::unique_ptr<VariableNumberData> create(double value);
 };
 
 class VariableStringData: public VariableDataBase
@@ -66,18 +98,22 @@ public:
     void setValue(std::string const& value);
 
     VariableDataBase* copy() const;
+
+    static std::unique_ptr<VariableStringData> create(std::string const& value);
 };
 
 class VariableSequenceData: public VariableDataBase
 {
     std::vector<FunctionCallAST*> calls;
 public:
-    VariableSequenceData(std::vector<FunctionCallAST*> calls);
+    VariableSequenceData(std::vector<FunctionCallAST*> value);
 
     std::vector<FunctionCallAST*> const& getValue() const;
     void setValue(std::vector<FunctionCallAST*> calls);
 
     VariableDataBase* copy() const;
+
+    static std::unique_ptr<VariableSequenceData> create(std::vector<FunctionCallAST*> value);
 };
 ///--- Variable Data ---///
 
@@ -187,11 +223,13 @@ public:
     template <typename T>
     void registerFunctionLibrary()
     {
-        static_assert(std::is_base_of<FCIFunctionLibraryBase, T>::value, "INTERPRETE: registerFunctionLibrary(): Given type is not a child of function library");
+        static_assert(std::is_base_of<FCIFunctionLibraryBase, T>::value, "INTERPRETER: registerFunctionLibrary(): Given type is not a child of function library");
 
         T* libt = new T();
 
         auto lib = (FCIFunctionLibraryBase*)libt;
+        std::cout << "INTERPRETER: registerFunctionLibrary(): Loading library `"+lib->getLibraryName()+"`..." << std::endl;
+
         auto funcs = lib->moveLibrary();
 
         for(auto&& it : funcs)
@@ -205,6 +243,8 @@ public:
 
         delete libt;
     }
+
+    static std::unique_ptr<Interpreter> create(std::unique_ptr<Parser> parser);
 };
 ///--- Interpreter ---///
 

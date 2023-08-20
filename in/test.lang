@@ -1,3 +1,4 @@
-let x = "HEl"
-if(x == "HEwl")
-    print("YEAH")
+print(toString(12.3))
+print(toNumber("69.323"))
+print(max(10, 20))
+print(max(880, 250))

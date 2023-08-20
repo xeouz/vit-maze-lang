@@ -539,4 +539,8 @@ std::unique_ptr<MainAST> Parser::ParseMain(std::string const& program_name)
     return std::make_unique<MainAST>(std::move(statements), std::move(externs), program_name);
 }
 
+std::unique_ptr<Parser> Parser::create(std::unique_ptr<Lexer> lexer)
+{
+    return std::make_unique<Parser>(std::move(lexer));
+}
 }

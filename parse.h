@@ -67,6 +67,8 @@ public:
     std::unique_ptr<ASTBase> ParseIfElse();
 
     std::unique_ptr<MainAST> ParseMain(std::string const& program_name = "main");
+
+    static std::unique_ptr<Parser> create(std::unique_ptr<Lexer> lexer);
 };
 
 }

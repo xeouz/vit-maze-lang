@@ -311,5 +311,10 @@ std::unique_ptr<Token> Lexer::getToken()
         }
     }
 }
+
+std::unique_ptr<Lexer> Lexer::create(std::string const& in_text, char new_line_char)
+{
+    return std::make_unique<Lexer>(in_text, new_line_char);
+}
 ///---  LEXER  ---///
 }

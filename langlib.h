@@ -4,6 +4,19 @@
 
 #define IMPL_LANG_SYSLIB
 
+#ifdef IMPL_LANG_DEFS
+    #define VAR(name, type) {name, type}
+    #define NUMBER lang::VT_NUMBER
+    #define STRING lang::VT_STRING
+    #define VOID lang::VT_VOID
+    #define SEQUENCE lang::VT_SEQUENCE
+    #define CREATE_NUMBER(value) lang::VariableNumberData::create(value)
+    #define CREATE_STRING(value) lang::VariableStringData::create(value)
+    #define CREATE_SEQUENCE(value) lang:VariableSequenceData::create(value)
+    #define FUNCTION static lang::FCIType
+    #define ARGUMENTS lang::FCIArguments
+#endif
+
 namespace lang
 {
 namespace lib
@@ -25,11 +38,11 @@ public:
         auto* val = args.at("val");
         if(val->getType() == VT_NUMBER)
         {
-            std::cout << static_cast<VariableNumberData*>(val)->getValue() << std::endl;
+            std::cout << val->getAsNumber()->getValue() << std::endl;
         }
         else if(val->getType() == VT_STRING)
         {
-            std::cout << static_cast<VariableStringData*>(val)->getValue() << std::endl;
+            std::cout << val->getAsString()->getValue() << std::endl;
         }
         else if(val->getType() == VT_SEQUENCE)
         {
@@ -40,7 +53,7 @@ public:
             std::cout << "<struct>" << std::endl;
         }
 
-        return std::make_unique<VariableVoidData>();
+        return VariableVoidData::create();
     }
 
     static FCIType toStringFunction(FCIArguments args)
@@ -49,13 +62,13 @@ public:
         auto* val = args.at("val");
         if(val->getType() == VT_NUMBER)
         {
-            retval = std::to_string(((VariableNumberData*)val)->getValue());
+            retval = std::to_string(val->getAsNumber()->getValue());
             retval.erase ( retval.find_last_not_of('0') + 1, std::string::npos );
             retval.erase ( retval.find_last_not_of('.') + 1, std::string::npos );
         }
         else if(val->getType() == VT_STRING)
         {
-            retval = ((VariableStringData*)val)->getValue();
+            retval = val->getAsString()->getValue();
         }
         else if(val->getType() == VT_SEQUENCE)
         {
@@ -66,7 +79,7 @@ public:
             retval = "<struct>";
         }
 
-        return std::make_unique<VariableStringData>(retval);
+        return VariableStringData::create(retval);
     }
     static FCIType toNumberFunction(FCIArguments args)
     {
@@ -74,14 +87,14 @@ public:
         auto* val = args.at("val");
         switch (val->getType())
         {
-            case VT_NUMBER: retval = ((VariableNumberData*)val)->getValue(); break;
-            case VT_STRING: retval = std::stod(((VariableStringData*)val)->getValue()); break;
+            case VT_NUMBER: retval = val->getAsNumber()->getValue(); break;
+            case VT_STRING: retval = std::stod(val->getAsString()->getValue()); break;
             default: {
                 std::cout << "toNumber(): Given value is of invalid type, could not convert to number" << std::endl;
             }
         }
 
-        return std::make_unique<VariableNumberData>(retval);
+        return VariableNumberData::create(retval);
     }
 };
 #endif
@@ -93,6 +106,10 @@ static void registerLibraries(Interpreter* interpreter)
     interpreter->registerFunctionLibrary<Syslib>();
 #endif
 
+}
+static void registerLibraries(std::unique_ptr<Interpreter> const& interpreter)
+{
+    registerLibraries(interpreter.get());
 }
 
 }

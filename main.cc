@@ -1,10 +1,32 @@
 #include <iostream>
 #include <fstream>
+
+#define IMPL_LANG_DEFS
 #include "lex.h"
 #include "parse.h"
 #include "ast.h"
 #include "interpret.h"
 #include "langlib.h"
+
+class MathLib: public lang::FCIFunctionLibraryBase
+{
+public:
+    MathLib(): FCIFunctionLibraryBase("math")
+    {
+        useFunction("max", &max, {.args = { VAR("a", NUMBER), VAR("b", NUMBER) }, .ret_type = NUMBER});
+    }
+
+    FUNCTION max(ARGUMENTS args)
+    {
+        double a = args["a"]->getAsNumber()->getValue();
+        double b = args["b"]->getAsNumber()->getValue();
+
+        if(a>b)
+            return CREATE_NUMBER(a);
+        else
+            return CREATE_NUMBER(b);
+    }
+};
 
 void run_interpret_test()
 {
@@ -17,10 +39,11 @@ void run_interpret_test()
         text += line + "\n";
     }
 
-    auto lex = std::make_unique<lang::Lexer>(text);
-    auto parse = std::make_unique<lang::Parser>(std::move(lex));
-    auto it = std::make_unique<lang::Interpreter>(std::move(parse));
-    lang::lib::registerLibraries(it.get());
+    auto lex = lang::Lexer::create(text);
+    auto parse = lang::Parser::create(std::move(lex));
+    auto it = lang::Interpreter::create(std::move(parse));
+    lang::lib::registerLibraries(it);
+    it->registerFunctionLibrary<MathLib>();
 
     it->interpretMain();
 }
