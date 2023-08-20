@@ -10,12 +10,10 @@
 
 class MathLib: public lang::FCIFunctionLibraryBase
 {
-public:
-    MathLib(): FCIFunctionLibraryBase("math")
-    {
-        useFunction("max", &max, {.args = { VAR("a", NUMBER), VAR("b", NUMBER) }, .ret_type = NUMBER});
-    }
-
+    LIBRARY_BEGIN(MathLib)
+    ADD_FUNCTION(max, ARG("a", NUMBER), ARG("b", NUMBER)) RETURNS(NUMBER)
+    LIBRARY_END()
+    
     FUNCTION max(ARGUMENTS args)
     {
         double a = args["a"]->getAsNumber()->getValue();

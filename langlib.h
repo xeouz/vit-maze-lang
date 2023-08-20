@@ -5,7 +5,7 @@
 #define IMPL_LANG_SYSLIB
 
 #ifdef IMPL_LANG_DEFS
-    #define VAR(name, type) {name, type}
+    #define ARG(name, type) {name, type}
     #define NUMBER lang::VT_NUMBER
     #define STRING lang::VT_STRING
     #define VOID lang::VT_VOID
@@ -15,6 +15,15 @@
     #define CREATE_SEQUENCE(value) lang:VariableSequenceData::create(value)
     #define FUNCTION static lang::FCIType
     #define ARGUMENTS lang::FCIArguments
+
+    #define LIBRARY_END()       }
+    #define ADD_FUNCTION(funcname, ...)  useFunction(#funcname, &funcname, {.args = {__VA_ARGS__ }
+
+    #define RETURNS(type) ,.ret_type = type}); 
+    #define LIBRARY_BEGIN(libname)      \
+                                public: \
+                                    libname(): FCIFunctionLibraryBase(#libname) { \
+
 #endif
 
 namespace lang
