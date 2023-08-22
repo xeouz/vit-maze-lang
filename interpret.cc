@@ -618,5 +618,11 @@ std::unique_ptr<Interpreter> Interpreter::create(std::unique_ptr<Parser> parser)
 {
     return std::make_unique<Interpreter>(std::move(parser));
 }
+std::unique_ptr<Interpreter> Interpreter::create(std::string const& in_text)
+{
+    auto lexer = Lexer::create(in_text);
+    auto parser = Parser::create(std::move(lexer));
+    return create(std::move(parser));
+}
 ///--- Interpreter ---///
 }

@@ -2,13 +2,12 @@
 
 #include "interpret.h"
 
-#define IMPL_LANG_SYSLIB
-
 #ifdef IMPL_LANG_DEFS
     #define ARG(name, type) {name, type}
     #define NUMBER lang::VT_NUMBER
     #define STRING lang::VT_STRING
     #define VOID lang::VT_VOID
+    #define ANY lang::VT_ANY
     #define SEQUENCE lang::VT_SEQUENCE
     #define CREATE_NUMBER(value) lang::VariableNumberData::create(value)
     #define CREATE_STRING(value) lang::VariableStringData::create(value)

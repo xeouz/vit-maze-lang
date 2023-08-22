@@ -2,29 +2,61 @@
 #include <fstream>
 
 #define IMPL_LANG_DEFS
+#define IMPL_LANG_SYSLIB
 #include "lex.h"
 #include "parse.h"
 #include "ast.h"
 #include "interpret.h"
 #include "langlib.h"
 
-class MathLib: public lang::FCIFunctionLibraryBase
+class MathLib: lang::FCIFunctionLibraryBase
 {
     LIBRARY_BEGIN(MathLib)
-    ADD_FUNCTION(max, ARG("a", NUMBER), ARG("b", NUMBER)) RETURNS(NUMBER)
+    ADD_FUNCTION(add, ARG("a", ANY), ARG("b", ANY)) RETURNS(NUMBER)
     LIBRARY_END()
-    
-    FUNCTION max(ARGUMENTS args)
-    {
-        double a = args["a"]->getAsNumber()->getValue();
-        double b = args["b"]->getAsNumber()->getValue();
 
-        if(a>b)
-            return CREATE_NUMBER(a);
-        else
-            return CREATE_NUMBER(b);
+    FUNCTION add(ARGUMENTS args)
+    {
+       lang::VariableDataBase* a, * b;
+        a = args["a"];
+        b = args["b"];
+
+        if(a->getType() == lang::VT_NUMBER)
+        {
+            std::cout << "ADDING NUMBERS" << std::endl;
+        }
+        else if(a->getType() == lang::VT_STRING)
+        {
+            std::cout << "ADDING STRINGS" << std::endl;
+        }
+
+        return CREATE_NUMBER(10);
     }
 };
+
+using namespace lang;
+void run_test()
+{
+    // Get file text
+    std::string text;
+    std::ifstream file("../in/test.lang");
+
+    std::string line;
+    while(getline(file, line))
+    {
+        text += line + "\n";
+    }
+
+    // Setup Aphel
+    auto interpreter = Interpreter::create(text);
+
+    // Add Libraries
+    interpreter->registerFunctionLibrary<MathLib>();
+    lib::registerLibraries(interpreter);
+    
+    // Run Aphel
+    interpreter->interpretMain();
+}
 
 void run_interpret_test()
 {
@@ -41,7 +73,6 @@ void run_interpret_test()
     auto parse = lang::Parser::create(std::move(lex));
     auto it = lang::Interpreter::create(std::move(parse));
     lang::lib::registerLibraries(it);
-    it->registerFunctionLibrary<MathLib>();
 
     it->interpretMain();
 }
@@ -86,7 +117,7 @@ void run_lex_test()
 
 int main()
 {
-    run_interpret_test();
+    run_test();
 
     return 0;
 }

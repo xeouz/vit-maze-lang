@@ -1,4 +1,3 @@
-print(toString(12.3))
-print(toNumber("69.323"))
-print(max(10, 20))
-print(max(880, 250))
+let print_seq = <print("HELLOW"), print("----")>
+
+do print_seq for 3

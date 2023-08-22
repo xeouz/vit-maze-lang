@@ -245,6 +245,7 @@ public:
     }
 
     static std::unique_ptr<Interpreter> create(std::unique_ptr<Parser> parser);
+    static std::unique_ptr<Interpreter> create(std::string const& in_text);
 };
 ///--- Interpreter ---///
 
