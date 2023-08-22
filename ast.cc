@@ -1,6 +1,6 @@
 #include "ast.h"
 
-namespace lang
+namespace xeouz
 {
 
 ///--- Base AST ---///

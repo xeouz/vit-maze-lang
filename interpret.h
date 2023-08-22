@@ -9,7 +9,7 @@
 #include <functional>
 #include <iostream>
 
-namespace lang
+namespace xeouz
 {
 
 ///--- Variable Data ---///

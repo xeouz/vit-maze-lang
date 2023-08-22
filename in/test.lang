@@ -1,3 +1,8 @@
-let print_seq = <print("HELLOW"), print("----")>
+let a = add(1, 244)
 
-do print_seq for 3
+if(toString(a) == "245")
+{
+    print(a)
+}
+else
+    print("NO")

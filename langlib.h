@@ -25,7 +25,7 @@
 
 #endif
 
-namespace lang
+namespace xeouz
 {
 namespace lib
 {

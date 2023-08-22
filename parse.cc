@@ -1,7 +1,7 @@
 #include "parse.h"
 #include <iostream>
 
-namespace lang
+namespace xeouz
 {
 
 Parser::Parser(std::unique_ptr<Lexer> _lexer): lexer(std::move(_lexer))

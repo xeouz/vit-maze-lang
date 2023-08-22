@@ -3,7 +3,7 @@
 #include <iostream>
 #include <type_traits>
 
-namespace lang
+namespace xeouz
 {
 
 ///--- Variable Data ---///

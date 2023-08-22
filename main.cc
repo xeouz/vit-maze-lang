@@ -9,32 +9,24 @@
 #include "interpret.h"
 #include "langlib.h"
 
-class MathLib: lang::FCIFunctionLibraryBase
+class MathLib: xeouz::FCIFunctionLibraryBase
 {
     LIBRARY_BEGIN(MathLib)
-    ADD_FUNCTION(add, ARG("a", ANY), ARG("b", ANY)) RETURNS(NUMBER)
+    ADD_FUNCTION(add, ARG("a", NUMBER), ARG("b", NUMBER)) RETURNS(NUMBER)
     LIBRARY_END()
 
     FUNCTION add(ARGUMENTS args)
     {
-       lang::VariableDataBase* a, * b;
-        a = args["a"];
-        b = args["b"];
+        double a, b;
+        a = args["a"]->getAsNumber()->getValue();
+        b = args["b"]->getAsNumber()->getValue();
 
-        if(a->getType() == lang::VT_NUMBER)
-        {
-            std::cout << "ADDING NUMBERS" << std::endl;
-        }
-        else if(a->getType() == lang::VT_STRING)
-        {
-            std::cout << "ADDING STRINGS" << std::endl;
-        }
-
-        return CREATE_NUMBER(10);
+        double ret = a + b;
+        return CREATE_NUMBER(ret);
     }
 };
 
-using namespace lang;
+using namespace xeouz;
 void run_test()
 {
     // Get file text

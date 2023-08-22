@@ -4,7 +4,7 @@
 #include <memory>
 #include <unordered_map>
 
-namespace lang
+namespace xeouz
 {
 
 enum

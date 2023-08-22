@@ -5,7 +5,7 @@
 
 #include "lex.h"
 
-namespace lang
+namespace xeouz
 {
 
 enum ASTType

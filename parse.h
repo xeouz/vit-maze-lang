@@ -7,7 +7,7 @@
 #include "lex.h"
 #include "ast.h"
 
-namespace lang
+namespace xeouz
 {
 
 static std::unordered_map<std::string, int> ParserPrecedenceMap = {

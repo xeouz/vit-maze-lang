@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 
-namespace lang
+namespace xeouz
 {
 
 ///---  TOKEN  ---///
