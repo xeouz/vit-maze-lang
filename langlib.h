@@ -4,16 +4,16 @@
 
 #ifdef IMPL_LANG_DEFS
     #define ARG(name, type) {name, type}
-    #define NUMBER lang::VT_NUMBER
-    #define STRING lang::VT_STRING
-    #define VOID lang::VT_VOID
-    #define ANY lang::VT_ANY
-    #define SEQUENCE lang::VT_SEQUENCE
-    #define CREATE_NUMBER(value) lang::VariableNumberData::create(value)
-    #define CREATE_STRING(value) lang::VariableStringData::create(value)
-    #define CREATE_SEQUENCE(value) lang:VariableSequenceData::create(value)
-    #define FUNCTION static lang::FCIType
-    #define ARGUMENTS lang::FCIArguments
+    #define NUMBER xeouz::VT_NUMBER
+    #define STRING xeouz::VT_STRING
+    #define VOID xeouz::VT_VOID
+    #define ANY xeouz::VT_ANY
+    #define SEQUENCE xeouz::VT_SEQUENCE
+    #define CREATE_NUMBER(value) xeouz::VariableNumberData::create(value)
+    #define CREATE_STRING(value) xeouz::VariableStringData::create(value)
+    #define CREATE_SEQUENCE(value) xeouz:VariableSequenceData::create(value)
+    #define FUNCTION static xeouz::FCIType
+    #define ARGUMENTS xeouz::FCIArguments
 
     #define LIBRARY_END()       }
     #define ADD_FUNCTION(funcname, ...)  useFunction(#funcname, &funcname, {.args = {__VA_ARGS__ }

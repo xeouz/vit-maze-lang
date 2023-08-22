@@ -53,7 +53,7 @@ void run_test()
 void run_interpret_test()
 {
     std::string text;
-    std::ifstream file("../in/test.lang");
+    std::ifstream file("../in/test.xeouz");
 
     std::string line;
     while(getline(file, line))
@@ -61,10 +61,10 @@ void run_interpret_test()
         text += line + "\n";
     }
 
-    auto lex = lang::Lexer::create(text);
-    auto parse = lang::Parser::create(std::move(lex));
-    auto it = lang::Interpreter::create(std::move(parse));
-    lang::lib::registerLibraries(it);
+    auto lex = xeouz::Lexer::create(text);
+    auto parse = xeouz::Parser::create(std::move(lex));
+    auto it = xeouz::Interpreter::create(std::move(parse));
+    xeouz::lib::registerLibraries(it);
 
     it->interpretMain();
 }
@@ -72,7 +72,7 @@ void run_interpret_test()
 void run_parse_test()
 {
     std::string text;
-    std::ifstream file("../in/test.lang");
+    std::ifstream file("../in/test.xeouz");
 
     std::string line;
     while(getline(file, line))
@@ -80,17 +80,17 @@ void run_parse_test()
         text += line + "\n";
     }
 
-    auto lex = std::make_unique<lang::Lexer>(text);
-    auto parse = std::make_unique<lang::Parser>(std::move(lex));
+    auto lex = std::make_unique<xeouz::Lexer>(text);
+    auto parse = std::make_unique<xeouz::Parser>(std::move(lex));
 
-    auto a = std::make_unique<lang::VariableNumberData>(1002.3);
+    auto a = std::make_unique<xeouz::VariableNumberData>(1002.3);
     std::cout << a->getValue() << std::endl;
 }
 
 void run_lex_test()
 {
     std::string text;
-    std::ifstream file("../in/test.lang");
+    std::ifstream file("../in/test.xeouz");
 
     std::string line;
     while(getline(file, line))
@@ -98,7 +98,7 @@ void run_lex_test()
         text += line + "\n";
     }
 
-    lang::Lexer lex(text);
+    xeouz::Lexer lex(text);
 
     while(lex.getIndex() < text.length()-1)
     {
